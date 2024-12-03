@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="wasm_exec.js"></script>
+    <script>
+        if (WebAssembly) {
+            const go = new Go();
+            WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
+                go.run(result.instance)
+
+                const img = document.createElement('img');
+                img.className = "abc"
+                img.src = generateCaptcha();
+                document.body.appendChild(img);
+
+                const form = document.createElement('div');
+                const captchaInput = document.createElement('input');
+                captchaInput.setAttribute('type', 'text');
+                captchaInput.setAttribute('placeholder', 'Enter captcha');
+                captchaInput.onkeydown = function(e) {
+                    if (e.key == "Enter") {
+                        if (!verifyCaptcha(captchaInput.value)) {
+                            alert('Wrong captcha');
+                            img.src = generateCaptcha();
+                            captchaInput.value = '';
+                        } else {
+                            alert('Success!');
+                        }
+                    }
+                };
+                form.appendChild(captchaInput);
+                document.body.appendChild(form);
+            })
+        } else {
+            console.log("WebAssembly is not supported")
+        }
+
+        function log(s) {
+            console.log('Log from JS: ['+s+']');
+        }
+    </script>
+
+</head>
+<body>
+
+</body>
+</html>
